@@ -1,9 +1,11 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { ApplicationStatus, OrganizationType, Role } from '@reliefmesh/shared';
+import type { AiStatus, ApplicationStatus, OrganizationType, Role, Urgency } from '@reliefmesh/shared';
 import type { CaseEvent, CaseRecord, Membership, Profile, SupplierOrganization } from '../domain/types';
 import {
   UniqueViolationError,
+  type AssessmentRecord,
   type CaseQuery,
+  type NewAssessment,
   type EditableCaseFields,
   type NewCase,
   type NewEvent,
@@ -203,6 +205,44 @@ export class SupabaseRepository implements Repository {
         .single(),
     );
     return row.id;
+  }
+
+  async insertAssessment(input: NewAssessment): Promise<string> {
+    const row = unwrap<{ id: string }>(await this.db.from('ai_assessments').insert(input).select('id').single());
+    return row.id;
+  }
+
+  async listAssessments(caseId: string): Promise<AssessmentRecord[]> {
+    return unwrap(
+      await this.db
+        .from('ai_assessments')
+        .select('id, case_id, agent_type, model_provider, model_version, input_fingerprint, output, confidence, created_at')
+        .eq('case_id', caseId)
+        .order('created_at', { ascending: false })
+        .limit(20),
+    );
+  }
+
+  async updateCaseAi(caseId: string, fields: { ai_status: AiStatus; urgency_suggestion?: Urgency | null }): Promise<void> {
+    unwrap(await this.db.from('relief_cases').update(fields).eq('id', caseId));
+  }
+
+  async listDuplicatePool(
+    organizationId: string,
+    excludeCaseId: string,
+    since: string,
+    limit: number,
+  ): Promise<CaseRecord[]> {
+    return unwrap(
+      await this.db
+        .from('relief_cases')
+        .select(CASE_COLUMNS)
+        .eq('organization_id', organizationId)
+        .neq('id', excludeCaseId)
+        .gte('created_at', since)
+        .order('created_at', { ascending: false })
+        .limit(limit),
+    );
   }
 
   async listEvents(caseId: string): Promise<CaseEvent[]> {

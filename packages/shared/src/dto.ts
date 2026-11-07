@@ -1,4 +1,5 @@
 /** API response contracts shared by apps/api (producer) and apps/web (consumer). */
+import type { CaseAiPanel, TriageResponse } from './ai';
 import type {
   AiStatus,
   ApplicationStatus,
@@ -121,11 +122,15 @@ export interface SupplierOrganization {
 export interface MutationResponse {
   case: StaffCase;
   audit_event_id: string | null;
+  /** Present on case creation: AI runs after the case is saved; null if it could not run. */
+  triage?: TriageResponse | null;
 }
 
 export interface CaseDetailResponse {
   case: CaseView;
   timeline: TimelineEntry[] | PublicTimelineEntry[];
+  /** Staff of the owning organization only. */
+  ai?: CaseAiPanel;
 }
 
 export interface PublicCaseResponse {

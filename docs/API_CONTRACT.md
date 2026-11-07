@@ -110,6 +110,8 @@ Response:
 }
 ```
 
+Implemented shape (ADR-015): `{ ai_status, human_review_required, intake_assessment_id, duplicate_assessment_id, ai }`, where `ai` holds the latest intake result (fields, confidence, missing fields, uncertainties, provider) and duplicate candidates (score, reasons, differences, `public_ref`). `POST /cases` runs the same triage after the case is persisted and returns it as `triage` (`null` if it could not run). Rate limit: 10 requests per user per minute.
+
 ### `POST /cases/:caseId/submit`
 
 Role: `field_worker` or `ngo_reviewer` in owning organization (ADR-011). Moves `submitted | needs_information → under_review` after the volunteer has checked the AI draft. No body.

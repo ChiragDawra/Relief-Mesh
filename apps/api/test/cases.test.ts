@@ -48,7 +48,7 @@ describe('POST /cases', () => {
     expect(res.status).toBe(201);
     expect(res.body.case).toMatchObject({
       application_status: 'submitted',
-      ai_status: 'pending',
+      ai_status: 'completed',
       category: 'water',
       public_ref: expect.stringMatching(/^RM-DEMO-\d{4}$/),
       case_ref_hash: expect.stringMatching(/^[0-9a-f]{64}$/),

@@ -1,0 +1,79 @@
+{
+  "intake": [
+    {
+      "id": "distinct-water",
+      "description": "Five families in Demo Ward 4 need drinking water after the flood. They have no safe drinking water for today. Request 25 litres.",
+      "locality_label": "Demo Ward 4",
+      "expect": { "category": "water", "household_count": 5, "urgency_suggestion": "high", "needs_review": false }
+    },
+    {
+      "id": "distinct-food",
+      "description": "Twelve households in Demo Ward 2 have no food since the market closed. Request 40 kg of rice by tomorrow.",
+      "locality_label": "Demo Ward 2",
+      "expect": { "category": "food", "household_count": 12, "urgency_suggestion": "high", "needs_review": false }
+    },
+    {
+      "id": "distinct-shelter",
+      "description": "Three families in Demo Ward 7 lost their roof in the storm and need 3 tents urgently this week.",
+      "locality_label": "Demo Ward 7",
+      "expect": { "category": "shelter", "household_count": 3, "urgency_suggestion": "high", "needs_review": false }
+    },
+    {
+      "id": "near-duplicate-1",
+      "description": "Demo Ward 4: five households have no clean drinking water since the flood and need about 25 litres today.",
+      "locality_label": "Demo Ward 4",
+      "expect": { "category": "water", "household_count": 5 }
+    },
+    {
+      "id": "near-duplicate-2",
+      "description": "Drinking water needed for 5 families in Demo Ward 4 after flooding; no safe drinking water today, 25 litres requested.",
+      "locality_label": "Demo Ward 4",
+      "expect": { "category": "water", "household_count": 5 }
+    },
+    {
+      "id": "near-duplicate-3",
+      "description": "Flood in Demo Ward 4 left five families without safe drinking water today. Please send 25 litres of water.",
+      "locality_label": "Demo Ward 4",
+      "expect": { "category": "water", "household_count": 5 }
+    },
+    {
+      "id": "same-locality-different-need",
+      "description": "A clinic in Demo Ward 4 needs 10 first aid kits for residents with minor injuries.",
+      "locality_label": "Demo Ward 4",
+      "expect": { "category": "medical", "household_count": null }
+    },
+    {
+      "id": "missing-quantity",
+      "description": "Families in Demo Ward 3 need blankets before night falls.",
+      "locality_label": "Demo Ward 3",
+      "expect": { "category": "shelter", "household_count": null, "missing_includes": ["requested_items.quantity"] }
+    },
+    {
+      "id": "ambiguous-urgency",
+      "description": "Some households in Demo Ward 5 would like extra rice.",
+      "locality_label": "Demo Ward 5",
+      "expect": { "category": "food", "urgency_suggestion": null, "needs_review": true }
+    }
+  ],
+  "duplicates": [
+    { "case": "near-duplicate-1", "pool": ["distinct-water", "distinct-food", "distinct-shelter", "same-locality-different-need"], "expect": ["distinct-water"] },
+    { "case": "near-duplicate-2", "pool": ["distinct-water", "distinct-food", "distinct-shelter", "same-locality-different-need"], "expect": ["distinct-water"] },
+    { "case": "near-duplicate-3", "pool": ["distinct-water", "distinct-food", "distinct-shelter", "same-locality-different-need"], "expect": ["distinct-water"] },
+    { "case": "same-locality-different-need", "pool": ["distinct-water", "distinct-food", "distinct-shelter"], "expect": [] },
+    { "case": "distinct-food", "pool": ["distinct-water", "distinct-shelter"], "expect": [] }
+  ],
+  "evidence": [
+    {
+      "id": "invoice-over-budget",
+      "request": {
+        "approved_amount_base_units": "40000000",
+        "token_decimals": 6,
+        "requested_items": [{ "name": "drinking_water", "quantity": 25, "unit": "litre" }],
+        "invoice_reference": "DEMO-INV-2001",
+        "invoice_total_base_units": "42000000",
+        "line_items": [{ "name": "drinking_water", "quantity": 25, "unit": "litre" }]
+      },
+      "expect": { "discrepancy_detected": true, "first_kind": "total_mismatch" }
+    }
+  ]
+}

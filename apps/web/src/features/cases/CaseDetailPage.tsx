@@ -7,6 +7,7 @@ import {
   PUBLIC_STATUSES,
   type CaseDetailResponse,
   type CaseView,
+  type IntakeResult,
   type MutationResponse,
 } from '@reliefmesh/shared';
 import { Card, ErrorState, Field, Loading } from '../../components/States';
@@ -16,7 +17,10 @@ import { apiFetch } from '../../lib/api';
 import { hasRole, useAuth } from '../../lib/auth';
 import { formatDateTime, formatTokens, humanize } from '../../lib/format';
 import { ReviewPanel } from '../review/ReviewPanel';
+import { AiPanel } from './AiPanel';
 import { EditCaseForm } from './EditCaseForm';
+
+const STAFF = ['field_worker', 'ngo_reviewer', 'admin'] as const;
 
 function CaseFacts({ c }: { c: CaseView }) {
   return (
@@ -78,6 +82,7 @@ export function CaseDetailPage() {
   const { me } = useAuth();
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState<IntakeResult | null>(null);
 
   const query = useQuery({
     queryKey: ['case', caseId],
@@ -123,10 +128,35 @@ export function CaseDetailPage() {
             <CaseFacts c={c} />
           </Card>
 
+          {staff && query.data.ai && (
+            <Card title="AI assistance">
+              <AiPanel
+                caseId={staff.id}
+                ai={query.data.ai}
+                canRetry={(editable || staff.application_status === 'under_review') && hasRole(me, STAFF, staff.organization_id)}
+                onUseDraft={
+                  canEdit
+                    ? (next) => {
+                        setDraft(next);
+                        setEditing(true);
+                      }
+                    : undefined
+                }
+              />
+            </Card>
+          )}
+
           {staff && (canEdit || canSubmit) && (
             <Card title="Volunteer review of the draft">
               {editing ? (
-                <EditCaseForm caseRecord={staff} onDone={() => setEditing(false)} />
+                <EditCaseForm
+                  caseRecord={staff}
+                  draft={draft}
+                  onDone={() => {
+                    setEditing(false);
+                    setDraft(null);
+                  }}
+                />
               ) : (
                 <div className="space-y-3">
                   <p className="text-sm text-slate-600">

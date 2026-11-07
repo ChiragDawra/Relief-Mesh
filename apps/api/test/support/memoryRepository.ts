@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { canTransition, type ApplicationStatus } from '@reliefmesh/shared';
+import { canTransition, type AiStatus, type ApplicationStatus, type Urgency } from '@reliefmesh/shared';
 import type {
   CaseEvent,
   CaseRecord,
@@ -9,7 +9,9 @@ import type {
 } from '../../src/domain/types';
 import {
   UniqueViolationError,
+  type AssessmentRecord,
   type CaseQuery,
+  type NewAssessment,
   type EditableCaseFields,
   type NewCase,
   type NewEvent,
@@ -27,6 +29,7 @@ export interface MemoryDirectory {
 export class MemoryRepository implements Repository {
   readonly cases = new Map<string, CaseRecord>();
   readonly events: CaseEvent[] = [];
+  readonly assessments: AssessmentRecord[] = [];
   private refSeq = 1001;
   private tick = 0;
 
@@ -141,5 +144,31 @@ export class MemoryRepository implements Repository {
 
   async listEvents(caseId: string) {
     return this.events.filter((e) => e.case_id === caseId).map((e) => structuredClone(e));
+  }
+
+  async insertAssessment(input: NewAssessment) {
+    const record: AssessmentRecord = { ...structuredClone(input), id: randomUUID(), created_at: this.stamp() };
+    this.assessments.push(record);
+    return record.id;
+  }
+
+  async listAssessments(caseId: string) {
+    return this.assessments
+      .filter((a) => a.case_id === caseId)
+      .sort((a, b) => b.created_at.localeCompare(a.created_at))
+      .map((a) => structuredClone(a));
+  }
+
+  async updateCaseAi(caseId: string, fields: { ai_status: AiStatus; urgency_suggestion?: Urgency | null }) {
+    const c = this.cases.get(caseId);
+    if (c) Object.assign(c, fields, { updated_at: this.stamp() });
+  }
+
+  async listDuplicatePool(organizationId: string, excludeCaseId: string, since: string, limit: number) {
+    return [...this.cases.values()]
+      .filter((c) => c.organization_id === organizationId && c.id !== excludeCaseId && c.created_at >= since)
+      .sort((a, b) => b.created_at.localeCompare(a.created_at))
+      .slice(0, limit)
+      .map((c) => structuredClone(c));
   }
 }

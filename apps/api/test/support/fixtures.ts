@@ -3,6 +3,7 @@ import { createApp } from '../../src/app';
 import type { TokenVerifier } from '../../src/auth/middleware';
 import { loadConfig } from '../../src/config';
 import type { Membership } from '../../src/domain/types';
+import { FakeAiClient } from './fakeAi';
 import { MemoryRepository } from './memoryRepository';
 
 export const ORG = {
@@ -49,8 +50,9 @@ export function buildTestApp() {
   const verifier: TokenVerifier = {
     verify: async (token) => (token.startsWith('test-token:') ? token.slice('test-token:'.length) : null),
   };
-  const app = createApp(loadConfig({ NODE_ENV: 'test' }), { repo, verifier, now: () => NOW });
-  return { app, repo };
+  const ai = new FakeAiClient();
+  const app = createApp(loadConfig({ NODE_ENV: 'test' }), { repo, verifier, ai, now: () => NOW });
+  return { app, repo, ai };
 }
 
 export const bearer = (userId: string) => `Bearer test-token:${userId}`;

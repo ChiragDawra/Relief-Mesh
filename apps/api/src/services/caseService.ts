@@ -4,7 +4,9 @@ import {
   EDITABLE_STATUSES,
   PUBLIC_STATUSES,
   type ApplicationStatus,
+  type CaseDetailResponse,
   type CaseView,
+  type TriageResponse,
   type CreateCaseInput,
   type ListCasesQuery,
   type ReviewCaseInput,
@@ -28,6 +30,7 @@ import {
   STAFF_ROLES,
 } from './authorization';
 import { redactContactDetails } from './redaction';
+import type { TriageService } from './triageService';
 import {
   donorCaseView,
   publicCaseView,
@@ -50,6 +53,7 @@ const DECISION_TARGET = {
 export interface MutationResult {
   caseRecord: CaseRecord;
   eventId: string | null;
+  triage?: TriageResponse | null;
 }
 
 /** Opaque on-chain case reference: SHA-256 of random bytes, never of personal data (ADR-016). */
@@ -60,6 +64,7 @@ function newCaseRefHash(): string {
 export class CaseService {
   constructor(
     private readonly repo: Repository,
+    private readonly triage: TriageService,
     private readonly now: () => Date = () => new Date(),
   ) {}
 
@@ -115,7 +120,10 @@ export class CaseService {
     const eventId = await this.repo.insertEvent(
       this.event(created, auth, actor, 'case_created', { category: created.category }),
     );
-    return { caseRecord: created, eventId, created: true };
+    // The case is already persisted, so an AI failure can only degrade to manual review.
+    const triage = await this.triage.runAfterCreate(created);
+    const caseRecord = (await this.repo.getCase(created.id)) ?? created;
+    return { caseRecord, eventId, created: true, triage };
   }
 
   async listCases(auth: AuthContext, query: ListCasesQuery): Promise<CaseView[]> {
@@ -159,9 +167,12 @@ export class CaseService {
       .flatMap((c) => this.viewFor(auth, c) ?? []);
   }
 
-  async getCaseDetail(auth: AuthContext, caseId: string) {
+  async getCaseDetail(auth: AuthContext, caseId: string): Promise<CaseDetailResponse> {
     const { caseRecord, view } = await this.loadVisible(auth, caseId);
-    return { case: view, timeline: await this.timelineFor(auth, caseRecord) };
+    const timeline = await this.timelineFor(auth, caseRecord);
+    // AI assessments are visible to staff of the owning organization only (DATA_MODEL §5).
+    if (view.view !== 'staff') return { case: view, timeline };
+    return { case: view, timeline, ai: await this.triage.panel(caseRecord) };
   }
 
   async getTimeline(auth: AuthContext, caseId: string) {

@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { HttpAiClient } from './ai/aiClient';
 import { createApp } from './app';
 import { SupabaseTokenVerifier } from './auth/supabaseVerifier';
 import { loadConfig, requireValue } from './config';
@@ -16,6 +17,10 @@ const supabase = createClient(
 const app = createApp(config, {
   repo: new SupabaseRepository(supabase),
   verifier: new SupabaseTokenVerifier(supabase),
+  ai: new HttpAiClient(
+    config.AI_SERVICE_URL,
+    requireValue(config.AI_SERVICE_INTERNAL_TOKEN, 'AI_SERVICE_INTERNAL_TOKEN'),
+  ),
 });
 
 app.listen(config.PORT, () => {

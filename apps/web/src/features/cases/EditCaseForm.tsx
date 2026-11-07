@@ -10,6 +10,7 @@ import {
   parseDisplayAmount,
   updateCaseSchema,
   URGENCY_LEVELS,
+  type IntakeResult,
   type MutationResponse,
   type StaffCase,
 } from '@reliefmesh/shared';
@@ -35,18 +36,26 @@ type FormValues = z.infer<typeof formSchema>;
 
 const input = 'mt-1 w-full rounded-md border border-slate-300 px-2 py-1.5 text-sm';
 
+interface Props {
+  caseRecord: StaffCase;
+  /** AI draft to pre-fill; the volunteer still reviews and saves it explicitly. */
+  draft?: IntakeResult | null;
+  onDone: () => void;
+}
+
 /** Volunteer correction of the structured fields (allowed while submitted / needs information). */
-export function EditCaseForm({ caseRecord, onDone }: { caseRecord: StaffCase; onDone: () => void }) {
+export function EditCaseForm({ caseRecord, draft, onDone }: Props) {
   const queryClient = useQueryClient();
+  const householdCount = draft ? draft.household_count : caseRecord.household_count;
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      category: caseRecord.category,
-      household_count: caseRecord.household_count?.toString() ?? '',
+      category: draft?.category ?? caseRecord.category,
+      household_count: householdCount?.toString() ?? '',
       locality_label: caseRecord.locality_label,
       amount: formatBaseUnits(caseRecord.requested_amount_base_units, caseRecord.token_decimals).replace(/,/g, ''),
       urgency_human_override: caseRecord.urgency_human_override ?? '',
-      requested_items: caseRecord.requested_items.map((i) => ({
+      requested_items: (draft?.requested_items ?? caseRecord.requested_items).map((i) => ({
         name: i.name,
         quantity: i.quantity?.toString() ?? '',
         unit: i.unit ?? '',

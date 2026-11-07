@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { rateLimit } from 'express-rate-limit';
 import { z } from 'zod';
 import {
   createCaseSchema,
@@ -9,6 +10,7 @@ import {
 import { getAuth } from '../auth/middleware';
 import { ApiError } from '../http/errors';
 import type { CaseService, MutationResult } from '../services/caseService';
+import type { TriageService } from '../services/triageService';
 import { staffCaseView } from '../services/views';
 
 const caseIdParam = z.object({ caseId: z.uuid() });
@@ -30,13 +32,28 @@ function mutationBody(result: MutationResult) {
   return { case: staffCaseView(result.caseRecord), audit_event_id: result.eventId };
 }
 
-export function casesRouter(service: CaseService): Router {
+// AI calls cost provider quota; limit retries per signed-in user (API_CONTRACT §6).
+const triageLimiter = () =>
+  rateLimit({
+    windowMs: 60_000,
+    limit: 10,
+    standardHeaders: 'draft-8',
+    legacyHeaders: false,
+    keyGenerator: (req) => req.auth?.userId ?? 'anonymous',
+    handler: (_req, _res, next) => next(new ApiError('RATE_LIMITED', 'Too many AI triage requests; retry in a minute.')),
+  });
+
+export function casesRouter(service: CaseService, triage: TriageService): Router {
   const router = Router();
 
   router.post('/cases', async (req, res) => {
     const input = createCaseSchema.parse(req.body);
     const result = await service.createCase(getAuth(req), input, idempotencyKey(req.header('idempotency-key')));
-    res.status(result.created ? 201 : 200).json(mutationBody(result));
+    res.status(result.created ? 201 : 200).json({ ...mutationBody(result), triage: result.triage ?? null });
+  });
+
+  router.post('/cases/:caseId/triage', triageLimiter(), async (req, res) => {
+    res.json(await triage.triage(getAuth(req), caseId(req.params)));
   });
 
   router.get('/cases', async (req, res) => {

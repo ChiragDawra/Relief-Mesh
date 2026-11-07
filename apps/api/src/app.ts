@@ -12,15 +12,19 @@ import { healthRouter } from './routes/health';
 import { meRouter } from './routes/me';
 import { publicRouter } from './routes/public';
 import { CaseService } from './services/caseService';
+import { TriageService } from './services/triageService';
+import type { AiClient } from './ai/aiClient';
 
 export interface AppDeps {
   repo: Repository;
   verifier: TokenVerifier;
+  ai: AiClient;
   now?: () => Date;
 }
 
 export function createApp(config: AppConfig, deps: AppDeps) {
-  const caseService = new CaseService(deps.repo, deps.now);
+  const triageService = new TriageService(deps.repo, deps.ai, deps.now);
+  const caseService = new CaseService(deps.repo, triageService, deps.now);
 
   const app = express();
   app.disable('x-powered-by');
@@ -41,7 +45,7 @@ export function createApp(config: AppConfig, deps: AppDeps) {
   v1.use(publicRouter(caseService));
   v1.use(requireAuth(deps.verifier, deps.repo));
   v1.use(meRouter(caseService));
-  v1.use(casesRouter(caseService));
+  v1.use(casesRouter(caseService, triageService));
   app.use('/api/v1', v1);
 
   app.use(notFoundHandler);

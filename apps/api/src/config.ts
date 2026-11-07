@@ -6,6 +6,8 @@ const envSchema = z.object({
   CORS_ORIGIN: z.string().default('http://localhost:5173'),
   SUPABASE_URL: z.url().optional(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(20).optional(),
+  AI_SERVICE_URL: z.url().default('http://localhost:8000'),
+  AI_SERVICE_INTERNAL_TOKEN: z.string().min(16).optional(),
 });
 
 export type AppConfig = z.infer<typeof envSchema>;

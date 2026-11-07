@@ -1,4 +1,4 @@
-import type { ApplicationStatus, CaseCategory } from '@reliefmesh/shared';
+import type { AiStatus, ApplicationStatus, CaseCategory, Urgency } from '@reliefmesh/shared';
 import type { CaseEvent, CaseRecord, Membership, Profile, SupplierOrganization } from '../domain/types';
 
 export type NewCase = Pick<
@@ -64,6 +64,21 @@ export interface TransitionInput extends NewEvent {
   approval?: ApprovalTerms | null;
 }
 
+/** Immutable row of public.ai_assessments; output holds the validated agent response, never raw prompts. */
+export interface AssessmentRecord {
+  id: string;
+  case_id: string;
+  agent_type: 'intake' | 'duplicate' | 'evidence';
+  model_provider: string;
+  model_version: string | null;
+  input_fingerprint: string;
+  output: unknown;
+  confidence: number | null;
+  created_at: string;
+}
+
+export type NewAssessment = Omit<AssessmentRecord, 'id' | 'created_at'>;
+
 export class UniqueViolationError extends Error {}
 
 export interface Repository {
@@ -88,4 +103,11 @@ export interface Repository {
   transitionCase(input: TransitionInput): Promise<string | null>;
   insertEvent(input: NewEvent): Promise<string>;
   listEvents(caseId: string): Promise<CaseEvent[]>;
+
+  insertAssessment(input: NewAssessment): Promise<string>;
+  /** Newest first. */
+  listAssessments(caseId: string): Promise<AssessmentRecord[]>;
+  updateCaseAi(caseId: string, fields: { ai_status: AiStatus; urgency_suggestion?: Urgency | null }): Promise<void>;
+  /** Same-organization cases created since `since`, excluding `excludeCaseId` (ADR-015). */
+  listDuplicatePool(organizationId: string, excludeCaseId: string, since: string, limit: number): Promise<CaseRecord[]>;
 }
