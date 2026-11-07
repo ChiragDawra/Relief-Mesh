@@ -16,18 +16,22 @@
     "dev:api": "npm run dev --workspace apps/api",
     "dev:ai": "cd services/ai && uv run uvicorn app.main:app --reload --port 8000",
     "lint": "eslint .",
-    "typecheck": "npm run typecheck --workspaces --if-present",
+    "typecheck": "tsc -p tsconfig.json && npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
     "test:ai": "cd services/ai && uv run pytest",
-    "build": "npm run build --workspaces --if-present"
+    "test:db": "npm run test:db --workspace apps/api",
+    "build": "npm run build --workspaces --if-present",
+    "seed:demo": "tsx --env-file-if-exists=.env scripts/seed-demo.ts"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
+    "@supabase/supabase-js": "2.119.0",
     "@types/node": "24.19.2",
     "concurrently": "10.0.6",
     "eslint": "10.14.0",
     "eslint-plugin-react-hooks": "7.1.1",
     "globals": "17.14.0",
+    "tsx": "4.23.15",
     "typescript": "5.9.3",
     "typescript-eslint": "8.72.1",
     "vitest": "5.1.0"
