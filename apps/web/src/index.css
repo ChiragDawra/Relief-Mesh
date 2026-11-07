@@ -1,0 +1,17 @@
+@import 'tailwindcss';
+
+/* Calm emergency-operations palette (TECH_STACK §6). */
+@theme {
+  --color-canvas: #faf8f4;
+  --color-ink: #1e293b;
+  --color-navy: #1b2a4a;
+}
+
+body {
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+}

@@ -1,0 +1,34 @@
+# Dependencies and build output
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+.vite/
+
+# Environment and secrets — never commit
+.env
+.env.*
+!.env.example
+*.keypair.json
+*-keypair.json
+id.json
+keys/
+
+# Python
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+
+# Anchor / Rust
+target/
+.anchor/
+test-ledger/
+
+# Supabase local state
+supabase/.branches/
+supabase/.temp/
+
+# OS / editor
+.DS_Store
+.claude/
