@@ -3,11 +3,25 @@ import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
 import { pinoHttp } from 'pino-http';
+import { requireAuth, type TokenVerifier } from './auth/middleware';
 import type { AppConfig } from './config';
 import { errorHandler, notFoundHandler } from './http/errors';
+import type { Repository } from './repositories/repository';
+import { casesRouter } from './routes/cases';
 import { healthRouter } from './routes/health';
+import { meRouter } from './routes/me';
+import { publicRouter } from './routes/public';
+import { CaseService } from './services/caseService';
 
-export function createApp(config: AppConfig) {
+export interface AppDeps {
+  repo: Repository;
+  verifier: TokenVerifier;
+  now?: () => Date;
+}
+
+export function createApp(config: AppConfig, deps: AppDeps) {
+  const caseService = new CaseService(deps.repo, deps.now);
+
   const app = express();
   app.disable('x-powered-by');
   app.use(helmet());
@@ -24,6 +38,10 @@ export function createApp(config: AppConfig) {
 
   const v1 = express.Router();
   v1.use(healthRouter);
+  v1.use(publicRouter(caseService));
+  v1.use(requireAuth(deps.verifier, deps.repo));
+  v1.use(meRouter(caseService));
+  v1.use(casesRouter(caseService));
   app.use('/api/v1', v1);
 
   app.use(notFoundHandler);
