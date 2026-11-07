@@ -1,0 +1,112 @@
+[
+  {
+    "path": "AGENTS.md",
+    "bytes": 5456,
+    "sha256": "5511b26ea34c7c265dce9bfe02de76863fd4ba9e2c233fc222326b30a54ca41b"
+  },
+  {
+    "path": "BUILD_PROMPT.md",
+    "bytes": 3940,
+    "sha256": "2bed4922503b0be2949b09baa986ef3bedcc00f27d688e6e3602993937c29a63"
+  },
+  {
+    "path": "README.md",
+    "bytes": 4347,
+    "sha256": "58213cb1d53faeda266aa201a542924577a5f5281efa216bc48c661efa638dee"
+  },
+  {
+    "path": "contracts/ESCROW_SPEC.md",
+    "bytes": 7311,
+    "sha256": "65ff6bd2d34dcae1c88c66758ec1d4d3f149a4cb31d0e0dad91bf77d34b202e4"
+  },
+  {
+    "path": "docs/AGENT_TASKS.md",
+    "bytes": 2958,
+    "sha256": "90350500b2a49f0967a60acc1db262cddc7d8da1964a22d5fdf0f68bb68a1a88"
+  },
+  {
+    "path": "docs/AI_AGENTS.md",
+    "bytes": 6399,
+    "sha256": "37235bd3824d6b6d2d3ab8c01b8473747b9883b76ebe3c7ee877156e12fc4df5"
+  },
+  {
+    "path": "docs/API_CONTRACT.md",
+    "bytes": 6804,
+    "sha256": "2e890f7e3ded6cda6c7fd28888e14d4f6759ab5abfd9117dffae3b528c8a367c"
+  },
+  {
+    "path": "docs/DATA_MODEL.md",
+    "bytes": 7533,
+    "sha256": "72c4c2377ca9e07788575291ae42805237ae8be6af2fc4539ab565b99d601c6b"
+  },
+  {
+    "path": "docs/DECISIONS.md",
+    "bytes": 2489,
+    "sha256": "eb339306e1da56da87efc5669ebe737308cfea7139e20fa63c059018bcbbb679"
+  },
+  {
+    "path": "docs/DEMO_SCRIPT.md",
+    "bytes": 3703,
+    "sha256": "2e01779b017f979a7a1d4ed9443582941cf31d8a07de71067e52d5d14e146588"
+  },
+  {
+    "path": "docs/ENV_SETUP.md",
+    "bytes": 1038,
+    "sha256": "38a3f39961f8ed227dc2714c51011d8b72978b80076ca41a3c401ff3c5fb8273"
+  },
+  {
+    "path": "docs/IMPLEMENTATION_PLAN.md",
+    "bytes": 4952,
+    "sha256": "be77102d33c21c4c9e167b6e50fc6a38fe2196391696bd7628bcbdbcb94e57c6"
+  },
+  {
+    "path": "docs/PRD.md",
+    "bytes": 12241,
+    "sha256": "dd6d5278f0b454340829390c97c2cd6f25e054c1f64ec1bb91e0d37a3da455b7"
+  },
+  {
+    "path": "docs/README.md",
+    "bytes": 266,
+    "sha256": "3f35adbfcc15f5d98916dbcf5b02a95ef69b11852ffd103401b6ec957eb4e27e"
+  },
+  {
+    "path": "docs/SECURITY_PRIVACY.md",
+    "bytes": 4400,
+    "sha256": "347b9e5704dac3af95bab270ebb78fe0baabb6d5b073e99be31f15db2515acb3"
+  },
+  {
+    "path": "docs/SYSTEM_ARCHITECTURE.md",
+    "bytes": 7344,
+    "sha256": "89fff55651047bb50410bde96443666e097c96db5d5887dcb8ed76c02f9b023c"
+  },
+  {
+    "path": "docs/TECH_STACK.md",
+    "bytes": 6806,
+    "sha256": "45f8359992177675b14b949cce8176f2333be10975bb0bb1556f9492eaa64c19"
+  },
+  {
+    "path": "docs/TEST_PLAN.md",
+    "bytes": 1950,
+    "sha256": "a690aa2f9f850872aa560e0408609fa9e19b9036e20d975e0bad7cd2422778e4"
+  },
+  {
+    "path": "docs/USER_STORIES.md",
+    "bytes": 1619,
+    "sha256": "36d02252b86fa1b8d46eecc8128cdadb6fe120f34d023b181d39eee8d7e65a78"
+  },
+  {
+    "path": "infra/.env.example",
+    "bytes": 1278,
+    "sha256": "d18826cfcbdc51db5ea967cfc2776cfee7fe16fb0b580babf74a00782976a83e"
+  },
+  {
+    "path": "supabase/migrations/0001_init.sql",
+    "bytes": 12123,
+    "sha256": "510703b33df2f98102841cc9e222327f8ee47cff8dabf6effe0c5bebb2a81b4d"
+  },
+  {
+    "path": "supabase/seed.sql",
+    "bytes": 1134,
+    "sha256": "afb9cd2a885290b25bb92912533875cc0dcea180e1434305b3a5df97bd7751de"
+  }
+]
